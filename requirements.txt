@@ -1,0 +1,8 @@
+python-dotenv
+pymongo
+fastapi==0.101.1
+uvicorn==0.28.1
+motor 
+pydantic
+python-jose[cryptography]
+websockets

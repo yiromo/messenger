@@ -1,0 +1,10 @@
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+.env
+__pycache__/
+minio/
+data/
+*.env
+envs/

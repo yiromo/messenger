@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  messenger-backend:
+    build: .
+    container_name: messenger-back
+    restart: always
+    ports:
+      - 8100:8000
+    environment:
+      - messenger-back
+    networks:
+      - messenger
+    volumes:
+      - .:/src
+    depends_on:
+      - mongo
+
+  mongo:
+    container_name: messenger-db
+    image: mongo:6.0.6
+    networks:
+      - messenger
+    ports:
+      - '28017:27017'
+    restart: unless-stopped
+    env_file:
+      - ./envs/containers.env
+
+  minio:
+    image: minio/minio
+    container_name: minio-messenger
+    volumes:
+      - ./minio:/data
+    ports:
+      - "9100:9000"
+      - "9333:9030"
+    restart: always
+    env_file:
+      - ./envs/containers.env
+    command: minio server /data --console-address ":9030"
+
+networks:
+  messenger:
+    driver: bridge
