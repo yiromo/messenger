@@ -19,4 +19,6 @@ class ChatConnection:
         for connection in self.active_connections:
             await connection.send_text(text)
 
+    
+
 chat = ChatConnection()

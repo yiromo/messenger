@@ -39,6 +39,8 @@ services:
     env_file:
       - ./envs/containers.env
     command: minio server /data --console-address ":9030"
+    networks:
+      - messenger
 
 networks:
   messenger:

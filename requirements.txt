@@ -1,8 +1,12 @@
 python-dotenv
 pymongo
+python-multipart 
 fastapi==0.101.1
 uvicorn==0.28.1
 motor 
-pydantic
+boto3
+pydantic==2.1.1
 python-jose[cryptography]
 websockets
+passlib
+pydantic-settings
