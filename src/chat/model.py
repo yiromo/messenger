@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from tortoise.models import Model
 from tortoise import fields
 import uuid
@@ -8,6 +7,8 @@ class Chat(Model):
 
 class ChatUser(Model):
     id = fields.BigIntField(pk=True, generated=True)
+    obj_id = fields.CharField(max_length=255, unique=True) 
+
 
 class ChatLine(Model):
     id = fields.BigIntField(pk=True, generated=True)

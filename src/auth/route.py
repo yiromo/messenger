@@ -16,8 +16,7 @@ async def sign_up(user: UserLoginBase):
     return {
         "accessToken": token_obj.accessToken,
         "refreshToken": token_obj.refreshToken,
-        "token_type": "Bearer",
-    }
+        "token_type": "Bearer",}
 
 @router.post("/login/", response_model=UserAccessToken, status_code=201)
 async def sign_in(response: Response, username: str = Form(...), password: str = Form(...)):

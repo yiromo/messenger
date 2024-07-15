@@ -1,7 +1,7 @@
 from fastapi import HTTPException, APIRouter, File, Depends, UploadFile
 from utils.token import validate_token
 from .service import user_service
-from .model import UserRead
+from .model import UserBase, UserRead
 
 router = APIRouter(
     prefix="/user",
@@ -15,7 +15,14 @@ async def get_user(username: str):
         return user
     raise HTTPException(status_code=404, detail="User not found.")
 
-@router.get("/get_user_od/", response_model=UserRead)
+@router.get("/get_user_all_info/", response_model=UserBase)
+async def get_user(username: str):
+    user = await user_service.get_user_all(username)
+    if user:
+        return user
+    raise HTTPException(status_code=404, detail="User not found.")
+
+@router.get("/get_user_od/", response_model=UserBase)
 async def get_user_od(user_id: str):
     user = await user_service.get_user_by_objid(user_id)
     if user:
@@ -36,6 +43,13 @@ async def update_user_email(user_id: str, email: str):
         return {"message": "User email updated successfully."}
     raise HTTPException(status_code=404, detail="User not found.")
 
+@router.put("/deactivate/")
+async def deactivate_user(user_id: str, option: bool):
+    result = await user_service.deactivate(user_id, option)
+    if result:
+        return {"message": "Account Deactivated"}
+    raise HTTPException(status_code=404, detail="User Not Found")
+
 @router.delete("/delete/")
 async def delete_user(user_id: str):
     deleted = await user_service.delete_user(user_id)
@@ -50,4 +64,11 @@ async def update_pfp(user_id: str,file: UploadFile = File(...)):
         return {"message":  "Profile picture uploaded", "file_url": file_url}
     raise HTTPException(status_code=404, detail="Error")
 
-
+@router.put("/is_private/")
+async def update_privacy(user_id: str, option: bool):
+    modified = await user_service.update_is_private(user_id, option = option)
+    try:
+        if modified:
+         return {"message": "Privacy Updated"}
+    except Exception as e:
+        print(status_code=404, detail=(e))
