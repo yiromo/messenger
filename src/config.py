@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     MINIO_SECRET_KEY: str
     MINIO_ENDPOINT: str
     
+    POSTGRES_URL: str
+
     IS_DEVELOPMENT: bool = False
     model_config = SettingsConfigDict(env_file=".env")
 

@@ -15,6 +15,13 @@ async def get_user(username: str):
         return user
     raise HTTPException(status_code=404, detail="User not found.")
 
+@router.get("/get_user_od/", response_model=UserRead)
+async def get_user_od(user_id: str):
+    user = await user_service.get_user_by_objid(user_id)
+    if user:
+        return user
+    raise HTTPException(status_code=404, detail="User not found.")
+
 @router.put("/update_username/")
 async def update_username(user_id:str, username: str):
     modified = await user_service.update_username(user_id, username)

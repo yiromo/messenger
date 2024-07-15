@@ -1,24 +1,24 @@
-from typing import List
-from fastapi import WebSocket, WebSocketDisconnect
+from pydantic import BaseModel
+from tortoise.models import Model
+from tortoise import fields
+import uuid
 
-class ChatConnection:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
+class Chat(Model):
+    id = fields.UUIDField(pk=True, default=uuid.uuid4)
 
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
+class ChatUser(Model):
+    id = fields.BigIntField(pk=True, generated=True)
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+class ChatLine(Model):
+    id = fields.BigIntField(pk=True, generated=True)
+    chat = fields.ForeignKeyField('models.Chat', related_name='lines', on_delete=fields.CASCADE)
+    user = fields.ForeignKeyField('models.ChatUser', related_name='lines', on_delete=fields.CASCADE)
+    line_text = fields.TextField()
+    created_at = fields.DatetimeField(auto_now_add=True)
 
-    async def sendtext(self, text: str, websocket: WebSocket):
-        await websocket.send_text(text)
+    class Meta:
+        indexes = [
+            ("chat_id",),
+            ("user_id",)
+        ]
 
-    async def broadcast(self, text: str):
-        for connection in self.active_connections:
-            await connection.send_text(text)
-
-    
-
-chat = ChatConnection()

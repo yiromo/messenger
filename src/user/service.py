@@ -1,5 +1,5 @@
 from pymongo.collection import Collection
-from db import db
+from mongodb import db
 from bson.objectid import ObjectId
 from .model import UserRead
 from typing import Optional
@@ -17,6 +17,13 @@ def convert_object_id(doc):
 class User:
     def __init__(self, collection):
         self.collection: Collection = db.db[collection]
+
+    async def get_user_by_objid(self, user_id):
+        result = await self.collection.find_one({"_id": ObjectId(user_id)})
+        if result:
+            result = convert_object_id(result)
+            return UserRead(**result)
+        return None
 
     async def get_user(self, username: str) -> Optional[UserRead]:
         result = await self.collection.find_one({"username": username})

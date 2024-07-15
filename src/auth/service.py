@@ -1,7 +1,7 @@
 from .model import UserOutLogin
 from pymongo.collection import Collection
 from fastapi import HTTPException, status, Response
-from db import db
+from mongodb import db
 from passlib.context import CryptContext
 import uuid
 from utils.token import create_token

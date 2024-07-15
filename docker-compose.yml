@@ -42,6 +42,19 @@ services:
     networks:
       - messenger
 
+  postgres:
+    container_name: postgres-messenger
+    image: postgres:13
+    env_file:
+      - ./envs/containers.env
+    networks:
+      - messenger
+    ports:
+      - '5400:5432'
+    restart: unless-stopped
+    volumes:
+      - ./data:/data/db
+
 networks:
   messenger:
     driver: bridge

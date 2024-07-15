@@ -10,3 +10,5 @@ python-jose[cryptography]
 websockets
 passlib
 pydantic-settings
+tortoise-orm
+asyncpg
