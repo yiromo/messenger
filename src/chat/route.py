@@ -4,7 +4,7 @@ from tortoise.contrib.fastapi import register_tortoise
 from .websocket import chat_ws_handler
 from .service import chat_service, init
 from postgre import pg
-
+from crypto.utils import CryptoUtils
 
 router = APIRouter(
     prefix="/chat",
@@ -34,11 +34,15 @@ async def add_user_to_chat(chat_id: str, user_id: str):
     return JSONResponse(content={"message": "User added to chat successfully"})
 
 @router.post("/{chat_id}/send_message/{user_id}/")
-async def send_message(chat_id: str, user_id: str, message: str):
-    chat_line = await chat_service.send_message(chat_id, user_id, message)
-    if not chat_line:
-        raise HTTPException(status_code=404, detail="Chat or user not found")
-    return JSONResponse(content={"message": "Message sent successfully"})
+async def send_message(chat_id: str, user_id: str, message: str, recipient_public_key: str):
+    try:
+        public_key = CryptoUtils.load_public_key(recipient_public_key)
+        chat_line = await chat_service.send_message(chat_id, user_id, message, public_key)
+        if not chat_line:
+            raise HTTPException(status_code=404, detail="Chat or user not found")
+        return JSONResponse(content={"message": "Message sent successfully"})
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid public key: {str(e)}")
 
 @router.put("/{chat_id}/update/{message_id}")
 async def update_message(chat_id: str, message_id: int, text: str):

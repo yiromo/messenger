@@ -33,10 +33,10 @@ register_tortoise(
 )
 
 app.include_router(admin_router)
+app.include_router(db_router)
 app.include_router(auth_router)
 app.include_router(chat_router)
 app.include_router(user_router)
-app.include_router(db_router)
 #app.include_router()
 
 if __name__ == "__main__":

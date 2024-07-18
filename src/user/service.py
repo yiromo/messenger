@@ -17,6 +17,13 @@ class User:
     def __init__(self, collection):
         self.collection: Collection = db.db[collection]
 
+    async def get_user_by_id(self, id: str):
+        result = await self.collection.find_one({"id": id})
+        if result:
+            result = convert_object_id(result)
+            return UserBase(**result)
+        return None
+    
     async def get_user_by_objid(self, user_id):
         result = await self.collection.find_one({"_id": ObjectId(user_id)})
         if result:
@@ -72,6 +79,9 @@ class User:
         return result.modified_count, file_url
     
     async def delete_pfp(self, user_id, file):
+        pass
+
+    async def get_me(self, token: str):
         pass
 
     async def delete_user(self, user_id):

@@ -21,3 +21,8 @@ class UserRead(BaseModel):
     profile_picture: Optional[str] = None
     is_private: Optional[bool] = None
     is_active: Optional[bool] = True
+
+class UserMe(BaseModel):
+    objectId: str
+    id: str
+    username: str

@@ -6,6 +6,8 @@ from jose import JWTError, jwt
 
 from config import settings
 
+oauth2_scheme_admin = OAuth2PasswordBearer(tokenUrl="/admin/login/")
+oauth2_scheme_user = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
 async def create_token(data: dict, token_type: str = "access"):
     to_encode = data.copy()
@@ -21,9 +23,20 @@ async def create_token(data: dict, token_type: str = "access"):
     )
     return encoded_jwt
 
-async def validate_token(token: str = Depends(OAuth2PasswordBearer(tokenUrl="api/admin/login/"))):
-    if token == settings.API_TOKEN:
-        return {"type": "messenger"}
+async def validate_token(token: str = Depends(oauth2_scheme_admin)):
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        if payload.get("exp") < datetime.utcnow().timestamp():
+            raise HTTPException(status_code=400, detail="Token expired")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=400, detail="Invalid token")
+    
+
+    
+async def validate_user_token(token: str = Depends(oauth2_scheme_user)):
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
@@ -46,6 +59,7 @@ async def validate_websocket_token(token: str):
         return payload
     except JWTError:
         return None
+    
     
 '''async def regenerate_refresh_token(token: str):
     payload = await validate_token(token=token)

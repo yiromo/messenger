@@ -12,3 +12,5 @@ passlib
 pydantic-settings
 tortoise-orm
 asyncpg
+cryptography
+aiofiles

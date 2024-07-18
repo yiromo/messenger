@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from base.models import AsyncBaseModel, IdBase
 
-class Admin(BaseModel):
+class Admin(AsyncBaseModel):
     login: str
     password: str
 

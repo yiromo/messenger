@@ -10,3 +10,6 @@ data/
 envs/
 .venv/
 src/migrate
+messenger-frontend/
+frontend/
+nginx/
