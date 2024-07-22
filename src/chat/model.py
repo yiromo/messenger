@@ -1,4 +1,5 @@
 from tortoise.models import Model
+from pydantic import BaseModel
 from tortoise import fields
 import uuid
 
@@ -22,4 +23,11 @@ class ChatLine(Model):
             ("chat_id",),
             ("user_id",)
         ]
+
+class ChatLineResponse(BaseModel):
+    id: int
+    chat_id: uuid.UUID
+    user_id: int
+    line_text: str
+    created_at: str
 

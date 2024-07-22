@@ -1,16 +1,18 @@
 from typing import List
 from tortoise.transactions import in_transaction
-from .model import Chat, ChatUser, ChatLine
+from .model import Chat, ChatUser, ChatLine, ChatLineResponse
 from user.service import user_service
 from tortoise import Tortoise
 from config import settings
 from postgre import pg
+from tortoise.exceptions import DoesNotExist
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey, RSAPrivateKey
 from crypto.utils import CryptoUtils
 import base64
+from fastapi import HTTPException
 
 async def init():
     await Tortoise.init(
@@ -58,12 +60,32 @@ class ChatService:
             return chat_line
         return None
 
-    async def get_chat_lines(self, chat_id: str, recipient_private_key) -> List[dict]:
-        chat_lines = await ChatLine.filter(chat_id=chat_id).order_by('created_at').all()
-        decrypted_chat_lines = []
-        for line in chat_lines:
-            decrypted_message = CryptoUtils.decrypt_message(base64.b64decode(line.line_text), recipient_private_key)
-            decrypted_chat_lines.append({**line.dict(), 'line_text': decrypted_message})
-        return decrypted_chat_lines
+    async def get_chat_lines(self, chat_id: str, recipient_private_key) -> List[ChatLineResponse]:
+        try:
+            chat_lines = await ChatLine.filter(chat_id=chat_id).order_by('created_at').all()
+            
+            decrypted_chat_lines = []
+            for line in chat_lines:
+                decrypted_message = CryptoUtils.decrypt_message(base64.b64decode(line.line_text), recipient_private_key)
+                decrypted_chat_lines.append(ChatLineResponse(
+                    id=line.id,
+                    chat_id=line.chat_id,
+                    user_id=line.user_id,
+                    line_text=decrypted_message,
+                    created_at=line.created_at.isoformat() 
+                ))
+                
+            return decrypted_chat_lines
+        except DoesNotExist:
+            raise HTTPException(status_code=404, detail="Chat not found")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
 
 chat_service = ChatService()
+
+
+
+
+
+
+

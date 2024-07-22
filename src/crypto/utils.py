@@ -40,7 +40,16 @@ class CryptoUtils:
             )
         )
         return encrypted_message
-
+    
+    @staticmethod
+    def load_private_key(private_key_str: str) -> RSAPrivateKey:
+        private_key = serialization.load_pem_private_key(
+            private_key_str.encode('utf-8'),
+            password=None,
+            backend=default_backend()
+        )
+        return private_key
+    
     @staticmethod
     def decrypt_message(encrypted_message: bytes, recipient_private_key: RSAPrivateKey) -> str:
         decrypted_message = recipient_private_key.decrypt(
@@ -52,6 +61,7 @@ class CryptoUtils:
             )
         ).decode()
         return decrypted_message
+
     
     @staticmethod
     def load_public_key(public_key_str: str) -> RSAPublicKey:

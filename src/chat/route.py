@@ -1,10 +1,12 @@
-from fastapi import HTTPException, APIRouter, WebSocket
+from fastapi import HTTPException, APIRouter, WebSocket, UploadFile, File
 from fastapi.responses import JSONResponse
 from tortoise.contrib.fastapi import register_tortoise
 from .websocket import chat_ws_handler
 from .service import chat_service, init
 from postgre import pg
 from crypto.utils import CryptoUtils
+from .model import ChatLineResponse, ChatLine
+from typing import List
 
 router = APIRouter(
     prefix="/chat",
@@ -21,10 +23,16 @@ async def add_user(obj_id: str):
     user = await chat_service.add_user(obj_id)
     return {"user_pg_id": user.id}
 
-@router.get("/chat_history/")
-async def chat_history(chat_id: str):
-    chat_lines = await chat_service.get_chat_lines(chat_id)
-    return chat_lines
+@router.post("/chat_history/", response_model=List[ChatLineResponse])
+async def chat_history(chat_id: str, recipient_private_key: UploadFile = File(...)):
+    try:
+        key_data = await recipient_private_key.read()
+        recipient_private_key = CryptoUtils.load_private_key(key_data.decode('utf-8'))
+        chat_lines = await chat_service.get_chat_lines(chat_id, recipient_private_key)
+        return chat_lines
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Error decrypting messages: {str(e)}")
+
 
 @router.post("/{chat_id}/add_user/{user_id}/")
 async def add_user_to_chat(chat_id: str, user_id: str):
@@ -34,9 +42,10 @@ async def add_user_to_chat(chat_id: str, user_id: str):
     return JSONResponse(content={"message": "User added to chat successfully"})
 
 @router.post("/{chat_id}/send_message/{user_id}/")
-async def send_message(chat_id: str, user_id: str, message: str, recipient_public_key: str):
+async def send_message(chat_id: str, user_id: str, message: str, recipient_public_key: UploadFile = File(...)):
     try:
-        public_key = CryptoUtils.load_public_key(recipient_public_key)
+        public_key_str = await recipient_public_key.read()
+        public_key = CryptoUtils.load_public_key(public_key_str.decode('utf-8'))
         chat_line = await chat_service.send_message(chat_id, user_id, message, public_key)
         if not chat_line:
             raise HTTPException(status_code=404, detail="Chat or user not found")

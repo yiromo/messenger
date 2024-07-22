@@ -9,7 +9,7 @@ from config import settings
 from tortoise.contrib.fastapi import register_tortoise
 #from test import router as test
 from fastapi.middleware.cors import CORSMiddleware
-from migrate.migrate01 import migrate
+#from migrate.migrate01 import migrate
 
 origins = ["*"]
 
@@ -42,3 +42,7 @@ app.include_router(user_router)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+
+
+    
