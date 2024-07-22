@@ -8,4 +8,4 @@ test:
 	docker compose up --build
 
 run:
-	python src/main.py
+	. .venv/bin/activate && python src/main.py
