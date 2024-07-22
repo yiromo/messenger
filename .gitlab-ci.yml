@@ -4,4 +4,3 @@ job1:
     - apt-get update && apt-get install -y make bash
   script:
     - make test-no-docker
-    - make run
