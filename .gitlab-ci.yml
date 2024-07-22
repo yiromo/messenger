@@ -3,4 +3,4 @@ job1:
   before_script: 
     - apt-get update && apt-get install make
   script:
-    - make run
+    - make test-no-docker
