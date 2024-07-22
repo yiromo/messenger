@@ -4,3 +4,14 @@ job1:
     - apt-get update && apt-get install -y make bash
   script:
     - make test-no-docker
+
+pull-image:
+  image: docker:27.0.2
+  services:
+    - docker:27.0.2
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - docker login -u yigaze -p $REGISTRY_PASS
+  script:
+    - docker pull yigaze/messenger-messenger-backend:version1 .
