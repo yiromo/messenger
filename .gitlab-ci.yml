@@ -1,6 +1,6 @@
 job1:
   image: python:3.9
   before_script: 
-    - apt-get update && apt-get install make
+    - apt-get update && apt-get install -y make bash
   script:
     - make test-no-docker
